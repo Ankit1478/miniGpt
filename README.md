@@ -47,6 +47,33 @@ These lines repeat 3000 times. This is where the learning happens:
 
 (`optimizer.zero_grad()` clears the old fixes before working out new ones.)
 
+## Functions
+
+| Function | What it does |
+|---|---|
+| `encode` | Turns letters into numbers (`"hi"` → `[46, 47]`) |
+| `decode` | Turns numbers back into letters (`[46, 47]` → `"hi"`) |
+| `get_batch` | Picks 32 random pieces of 8 letters, as questions (`x`) and answers (`y`, shifted by one) |
+| `estimate_loss` | Tests the model on 200 batches of train and val data and returns the average loss, without learning |
+| `__init__` | Builds the model: one 65 × 65 table of numbers |
+| `forward` | Looks up each letter in the table to guess the next letter, and gives the loss if answers are provided |
+| `generate` | Writes new text: guess, pick a letter, add it, repeat 500 times |
+
+### How they work together
+
+```mermaid
+flowchart LR
+    A["encode: text to numbers"] --> B["get_batch: pick practice pieces"]
+    B --> C["forward: guess and get loss"]
+    C --> D["optimizer: fix the table"]
+    D --> B
+    C -. "every 300 steps" .-> E["estimate_loss: check progress"]
+    D -- "after 3000 steps" --> F["generate: write new numbers"]
+    F --> G["decode: numbers to text"]
+```
+
+`__init__` runs once at the start to build the table that `forward` and `generate` use.
+
 ## Key terms
 
 | Term | Simple meaning |
